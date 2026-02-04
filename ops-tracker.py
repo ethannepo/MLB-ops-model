@@ -41,9 +41,7 @@ train_years = [2017, 2018, 2019, 2021, 2022, 2023]
 train_df = pd.concat(dfs[year] for year in train_years)
 train_df = train_df.drop_duplicates()
 
-train_df.to_csv('training.csv')
-dfs[2025]
-
+train_df.to_csv('data/training.csv')
 
 # Create y
 
@@ -140,12 +138,12 @@ y_2025 = dfs[2025].OPS
 X_2025 = dfs[2025][feature_names]
 
 predictions_2025 = ops_forest.predict(X_2025)
-dfs[2025]['Predicted OPS'] = predictions_2025.round(3)
+dfs[2025]['Predicted_OPS'] = predictions_2025.round(3)
 
 ops_diff_list = []
 
 def get_ops_diff(the_row):
-    ops_diff = the_row['OPS'] - the_row['Predicted OPS']
+    ops_diff = the_row['OPS'] - the_row['Predicted_OPS']
     ops_diff_list.append(round(ops_diff,3))
 
 
@@ -158,7 +156,7 @@ dfs[2025] = dfs[2025].sort_values('OPS Diff')
 
 dfs[2025]
 
-dfs[2025].to_csv('ops_diff_2025.txt', index=False)
+dfs[2025].to_csv('data/ops_diff_2025.csv', index=False)
 
 
 # Trying XGBoost to improve accuracy
@@ -193,25 +191,5 @@ print(r2_score(y_2024, gbm_2024))
 model_importances = ops_forest.feature_importances_
 feature_imp_df = pd.DataFrame({'Feature': feature_names, 'Importance': model_importances}).sort_values('Importance', ascending=False)
 print(feature_imp_df)
-
-# Create database for team matching
-import sqlite3 as sql
-import glob
-from pathlib import Path
-import pybaseball
-
-
-
-# Plot differences in OPS and expected OPS
-import plotly.express as px
-
-scatter = px.scatter(dfs[2025], title = 'OPS vs Predicted OPS', x='Predicted OPS', y='OPS', color='Pitches', hover_data='Player')
-scatter.add_shape(
-    type="line", x0 = dfs[2025]['Predicted OPS'].min(),
-    y0 = dfs[2025]['Predicted OPS'].min(), x1 = dfs[2025]['Predicted OPS'].max(),
-    y1 = dfs[2025]['Predicted OPS'].max(), line = dict(color = 'gray')
-)
-scatter.update_yaxes(scaleanchor="x",scaleratio=.25)
-scatter.show()
 
 
